@@ -25,9 +25,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * Calculates grouped kmeans. The input file(s) shall contain tab delimited
+ * Calculates linear regression. The input file(s) shall contain tab delimited
  * group\tmeasure and the output file{s} will contain tab delimited
- * group\tmean1\tmean2 ... \tmeank
+ * group\tslope\tintercept
  * 
  * @author mpouttuc
  *
