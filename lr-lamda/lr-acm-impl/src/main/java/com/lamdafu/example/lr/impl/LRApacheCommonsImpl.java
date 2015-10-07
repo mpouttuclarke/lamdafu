@@ -37,7 +37,7 @@ public class LRApacheCommonsImpl extends HashMap<Object, Object> {
 		} else if (KEY_INTERCEPT.equalsIgnoreCase(valueOfKey)) {
 			return sr.getIntercept();
 		}
-		return null;
+		return super.get(key);
 	}
 
 	/*
@@ -57,8 +57,10 @@ public class LRApacheCommonsImpl extends HashMap<Object, Object> {
 			}
 		} else if (KEY_CLEAR.equalsIgnoreCase(valueOfKey)) {
 			sr.clear();
+		} else {
+			return super.put(key, value);
 		}
-		return value;
+		return null;
 	}
 
 }

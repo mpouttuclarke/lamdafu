@@ -66,15 +66,9 @@ public class LRDriver extends Configured implements Tool {
 		public Map<Object, Object> initLamda(final Configuration conf) {
 			ServiceLoader<Map> loader;
 			try {
-				loader = ServiceLoader
-						.load(Map.class,
-								new URLClassLoader(
-										new URL[] {
-												new URL(conf
-														.get(CONF_LR_URL,
-																new File("../lr-acm-impl/target/lr-impl-uber.jar")
-																		.toURI().toURL().toString())) },
-								Map.class.getClassLoader()));
+				final URL[] urls = new URL[] { new URL(conf.get(CONF_LR_URL,
+						new File("../lr-acm-impl/target/lr-impl-uber.jar").toURI().toURL().toString())) };
+				loader = ServiceLoader.load(Map.class, new URLClassLoader(urls, Map.class.getClassLoader()));
 			} catch (Exception e) {
 				throw new IllegalStateException(LOADER_ERROR, e);
 			}
