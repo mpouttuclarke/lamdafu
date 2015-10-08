@@ -5,9 +5,9 @@
 		<vendor>LambdaFu LLC</vendor>
 		<offline-allowed />
 	</information>
-	<security>
+	<!--security>
       <all-permissions/>
-	</security>
+	</security -->
 	<resources>
 		<j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se" />
 		<jar href="run-jnlp-example.jar" main="true" />
