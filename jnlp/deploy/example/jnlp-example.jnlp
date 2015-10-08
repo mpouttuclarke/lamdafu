@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+" codebase="." href="">
-	<information>
+	<information> 
 		<title>JNLP Example</title>
 		<vendor>LambdaFu LLC</vendor>
 		<offline-allowed />
