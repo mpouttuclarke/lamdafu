@@ -7,7 +7,7 @@
 	</information>
 	<resources>
 		<j2se version="1.7+" href="http://java.sun.com/products/autodl/j2se" />
-		<jar href="target/run-jnlp-example.jar" main="true" />
+		<jar href="run-jnlp-example.jar" main="true" />
 	</resources>
 	<application-desc main-class="com.lambdafu.example.jnlp.Main" />
 	<update check="background" />
