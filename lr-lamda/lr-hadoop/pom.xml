@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>lr-hadoop</artifactId>
 	<name>Linear Regression Hadoop Job</name>
-	<description>Outputs grouped linear regression based on an input grouping column and a variable.  Groups must be small enough to fit into memory on the reducer.</description>
+	<description>Outputs grouped linear regression based on an input grouping column and a variable.</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
