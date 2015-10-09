@@ -117,7 +117,7 @@ public class LRDriver extends Configured implements Tool {
 		}
 
 		final Configuration conf = getConf();
-		Job job = Job.getInstance(conf, "KMeans");
+		Job job = Job.getInstance(conf, "LRDriver");
 		job.setJarByClass(LRDriver.class);
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
