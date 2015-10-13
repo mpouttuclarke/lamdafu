@@ -3,61 +3,72 @@
  */
 package com.lamdafu.example.lr.impl;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
 /**
  * @author mpouttuc
  */
-public class LRApacheCommonsImpl extends HashMap<Object, Object> {
-	private static final String KEY_ADD = "add";
-	private static final String KEY_SLOPE = "slope";
-	private static final String KEY_INTERCEPT = "intercept";
-	private static final String KEY_CLEAR = "clear";
+public class LRApacheCommonsImpl extends TreeMap<String, Object> {
+
+	private static final String KEY_LAMBDA = "\u03BBlr";
+	private static final String KEY_ADD = KEY_LAMBDA + "\u0394add";
+	private static final String KEY_SLOPE = KEY_LAMBDA + "\u0398slope";
+	private static final String KEY_INTERCEPT = KEY_LAMBDA + "\u0398intercept";
+	private static final String MESG_PARM_ADD = KEY_ADD +" requires double[2]";
 
 	private static final long serialVersionUID = 2229309181571393707L;
 
-	private final SimpleRegression sr = new SimpleRegression(true);
+	private final SimpleRegression lr = new SimpleRegression(true);
 
 	public LRApacheCommonsImpl() {
-		super(0);
+		super();
+		initSuper();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.HashMap#get(java.lang.Object)
-	 */
+	protected void initSuper() {
+		// Add prototypes to allow data type discovery
+		super.put(KEY_LAMBDA, new String[0]);
+		super.put(KEY_ADD, new double[2]);
+		super.put(KEY_SLOPE, new Double(0.0d));
+		super.put(KEY_INTERCEPT, new Double(0.0d));
+	}
+
+	@Override
+	public void clear() {
+		super.clear();
+		lr.clear();
+		initSuper();
+	}
+
 	@Override
 	public Object get(Object key) {
 		final String valueOfKey = String.valueOf(key);
 		if (KEY_SLOPE.equalsIgnoreCase(valueOfKey)) {
-			return sr.getSlope();
+			return lr.getSlope();
 		} else if (KEY_INTERCEPT.equalsIgnoreCase(valueOfKey)) {
-			return sr.getIntercept();
+			return lr.getIntercept();
 		}
 		return super.get(key);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.HashMap#put(java.lang.Object, java.lang.Object)
-	 */
 	@Override
-	public Object put(Object key, Object value) {
+	public Object put(String key, Object value) {
 		final String valueOfKey = String.valueOf(key);
 		if (KEY_ADD.equalsIgnoreCase(valueOfKey)) {
 			if (value instanceof double[]) {
 				double[] vals = (double[]) value;
-				if (vals.length > 1) {
-					sr.addData(vals[0], vals[1]);
+				if (vals.length == 2) {
+					lr.addData(vals[0], vals[1]);
+					super.put(key, value);
+				} else {
+					throw new IllegalArgumentException(MESG_PARM_ADD);
 				}
+			} else {
+				throw new IllegalArgumentException(MESG_PARM_ADD);
 			}
-		} else if (KEY_CLEAR.equalsIgnoreCase(valueOfKey)) {
-			sr.clear();
-		} else {
+		} else if (!valueOfKey.startsWith("\u03BB")) {
 			return super.put(key, value);
 		}
 		return null;

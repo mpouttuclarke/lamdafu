@@ -96,10 +96,10 @@ public class LRDriver extends Configured implements Tool {
 				double x = NumberUtils.toDouble(splits[0], Double.NaN);
 				double y = NumberUtils.toDouble(splits[1], Double.NaN);
 				if (!Double.isNaN(x) && !Double.isNaN(y)) {
-					lr.put("add", new double[] { x, y });
+					lr.put("\u03BBlr\u0394add", new double[] { x, y });
 				}
 			}
-			ctx.write(key, new Text(lr.get("slope") + "\t" + lr.get("intercept")));
+			ctx.write(key, new Text(lr.get("\u03BBlr\u0398slope") + "\t" + lr.get("\u03BBlr\u0398intercept")));
 		}
 
 	}
