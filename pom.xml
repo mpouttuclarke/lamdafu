@@ -6,7 +6,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>LamdaFu</name>
-	<description>Leverage &#955; to future-proof big data processing.  Mix and match big data technologies at will.  Unify batch and &quot;real-time&quot; business logic.  Unit test on a single machine and deploy to the largest clusters.</description>
 	<modules>
 		<module>lamdafu-boot</module>
 		<module>lamdafu-kernel</module>
@@ -36,4 +35,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<url>https://github.com/mpouttuclarke/lamdafu/wiki</url>
+	<description>Leverage &#955; APIs to future-proof big data processing.  Mix and match big data technologies at will.  Unify batch and &quot;real-time&quot; business logic.  Unit test on a single machine and deploy to the largest clusters.
+
+Mary didn't have a little Lamb ... da!  We prefer the Unicode spelling of lamda as simpler, more intuitive, and just more BC.</description>
 </project>
