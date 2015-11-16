@@ -63,7 +63,7 @@ public class LRDriver extends Configured implements Tool {
 		 * @param conf
 		 */
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public Map<Object, Object> initLamda(final Configuration conf) {
+		public Map initLamda(final Configuration conf) {
 			ServiceLoader<Map> loader;
 			try {
 				final URL[] urls = new URL[] { new URL(conf.get(CONF_LR_URL,

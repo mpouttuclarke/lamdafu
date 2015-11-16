@@ -14,16 +14,16 @@ import java.io.Serializable;
 public abstract class MetaBase implements Serializable {
 	private static final long serialVersionUID = 5318133070786432016L;
 
-	public String uri;
+	public String name;
 	public String etag;
 	
 	public MetaBase() {
 		super();
 	}
 	
-	public MetaBase(String uri, String etag) {
+	public MetaBase(String name, String etag) {
 		super();
-		this.uri = uri;
+		this.name = name;
 		this.etag = etag;
 	}
 
@@ -32,7 +32,7 @@ public abstract class MetaBase implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((etag == null) ? 0 : etag.hashCode());
-		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -50,17 +50,17 @@ public abstract class MetaBase implements Serializable {
 				return false;
 		} else if (!etag.equals(other.etag))
 			return false;
-		if (uri == null) {
-			if (other.uri != null)
+		if (name == null) {
+			if (other.name != null)
 				return false;
-		} else if (!uri.equals(other.uri))
+		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("[uri=%s etag=%s", uri, etag);
+		return String.format("[uri=%s etag=%s", name, etag);
 	}
 	
 }
