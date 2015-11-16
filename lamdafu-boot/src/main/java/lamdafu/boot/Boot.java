@@ -14,23 +14,30 @@ import java.util.ServiceLoader;
 import lamdafu.metamodel.MetaLamda;
 
 /**
- * 
+ * A Boot instance defines a container for complete dependency isolation. Only
+ * JDK standard classes and interfaces can pass across containers.
  * 
  * @author mpouttuclarke
  *
  */
 public class Boot {
 
-	public static final String METAMODEL_KEY = "metamodel"; 
-	
+	public static final String METAMODEL_KEY = "metamodel";
+
 	private ClassLoader loader;
-	
+
 	protected Boot(URL... urls) {
 		loader = new URLClassLoader(urls, String.class.getClassLoader());
 	}
-	
+
+	/**
+	 * Boot from URLs or from local working directory if no URL provided.
+	 * 
+	 * @param urls
+	 * @return
+	 */
 	public static Boot from(URL... urls) {
-		if(urls == null || urls.length < 1) {
+		if (urls == null || urls.length < 1) {
 			try {
 				urls = new URL[] { new File(".").toURI().toURL() };
 			} catch (MalformedURLException e) {
@@ -38,9 +45,9 @@ public class Boot {
 			}
 		}
 		return new Boot(urls);
-		
+
 	}
-	
+
 	/**
 	 * Boot a λ by name if available, otherwise return null.
 	 * 
@@ -51,10 +58,10 @@ public class Boot {
 	public Map byName(String uri) {
 		ServiceLoader<Map> load = ServiceLoader.load(Map.class, loader);
 		Iterator<Map> i = load.iterator();
-		while(i.hasNext()) {
+		while (i.hasNext()) {
 			Map next = i.next();
 			MetaLamda meta = Cast.get(next, METAMODEL_KEY, MetaLamda.class);
-			if(meta != null && meta.name != null && meta.name.equals(uri)) {
+			if (meta != null && meta.name != null && meta.name.equals(uri)) {
 				return next;
 			}
 		}
