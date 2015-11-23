@@ -1,12 +1,5 @@
 package deps;
 
-import java.util.List;
-
-import org.apache.calcite.plan.RelOptUtil;
-import org.apache.calcite.plan.RelTraitDef;
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.core.JoinRelType;
-import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -15,21 +8,14 @@ import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
-import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.util.SqlShuttle;
-import org.apache.calcite.sql.validate.SqlScopedShuttle;
-import org.apache.calcite.sql.validate.SqlValidatorScope;
-import org.apache.calcite.tools.FrameworkConfig;
-import org.apache.calcite.tools.Frameworks;
-import org.apache.calcite.tools.Frameworks.ConfigBuilder;
-import org.apache.calcite.tools.Programs;
-import org.apache.calcite.tools.RelBuilder;
 
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-		SqlNode q = SqlParser.create("select a,b,c from blibblab x, booboo y, fooboo z where x.a = y.a and y.b = z.b and z.c between 1 and 3").parseQuery();
+		SqlNode q = SqlParser.create("select a,b,c from blibblab x, booboo y, fooboo z "
+				+ "where x.a = y.a and y.b = z.b and z.c between 1 and 3").parseQuery();
 		q.accept(new MyVisitor());
 	}
 

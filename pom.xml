@@ -16,6 +16,8 @@ Mary didn't have a little Lamb ... da!  We prefer the Unicode (and Greek) spelli
 	<modules>
 		<module>lamdafu-boot</module>
 		<module>lamdafu-kernel</module>
+		<module>lamdafu-common</module>
+		<module>lamdafu-dsp</module>
 	</modules>
 	<dependencies>
 		<dependency>

@@ -21,15 +21,16 @@ public class Cast {
 	 * 
 	 * @param map
 	 * @param key
+	 * @param returnType
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> T get(Map map, Object key, Class<T> clazz) {
+	@SuppressWarnings({ "unchecked" })
+	public static <T> T get(Map<Object, Object> map, Object key, Class<T> returnType) {
 		if (map == null) {
 			return null;
 		}
 		Object object = map.get(key);
-		if (object == null || !clazz.isAssignableFrom(object.getClass())) {
+		if (object == null || !returnType.isAssignableFrom(object.getClass())) {
 			return null;
 		} else {
 			return (T) object;
@@ -47,8 +48,8 @@ public class Cast {
 	 * @throws NullPointerException
 	 * @throws ClassCastException
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> T get(Map map, Object key) throws NullPointerException, ClassCastException {
+	@SuppressWarnings({ "unchecked" })
+	public static <T> T get(Map<Object, Object> map, Object key) throws NullPointerException, ClassCastException {
 		return (T) map.get(key);
 	}
 }

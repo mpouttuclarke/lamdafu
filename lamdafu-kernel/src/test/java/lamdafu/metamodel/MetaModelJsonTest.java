@@ -13,10 +13,10 @@ public class MetaModelJsonTest {
 	public void test() {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().generateNonExecutableJson()
 				.serializeSpecialFloatingPointValues().disableInnerClassSerialization().setPrettyPrinting().create();
-		MetaLamda lamda = new MetaLamda("lamda", null);
+		MetaLamda lamda = new MetaLamda("lamda", 0.0d);
 		System.out.println(gson.toJson(lamda));
-		lamda.factor.put("fact1_alias", new MetaField("fact1_name", null, null));
-		lamda.product.put("prod1_alias", new MetaField("product1_name", null, null));
+		lamda.input.add(new MetaField("fact1_name", null));
+		lamda.output.add(new MetaField("product1_name", null));
 		String json = gson.toJson(lamda);
 		System.out.println(gson.toJson(gson.fromJson(json, MetaLamda.class)));
 	}

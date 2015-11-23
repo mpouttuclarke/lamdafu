@@ -18,8 +18,8 @@ public class MetaField extends MetaBase {
 		super();
 	}
 
-	public MetaField(String uri, String etag, String type) {
-		super(uri, etag);
+	public MetaField(String name, String type) {
+		super(name);
 		this.type = type;
 	}
 
