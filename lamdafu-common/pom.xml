@@ -6,7 +6,6 @@
 		<artifactId>lamdafu-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>lamdafu-common</groupId>
 	<artifactId>lamdafu-common</artifactId>
 	<dependencies>
 		<dependency>

@@ -41,9 +41,9 @@ public class PhoneticDouble {
 
 	private static final String NUMERICS = "0123456789";
 
-	private int literalCutoff = MAX_LITERAL_CUTOFF;
+	private int literalCutoff = 4;
 	private int maxCacheSize = 64;
-	private Cache<String, Double> cache;
+	private transient Cache<String, Double> cache;
 
 	public PhoneticDouble() {
 		super();
@@ -88,9 +88,9 @@ public class PhoneticDouble {
 		return this;
 	}
 
-	public double encode(final String value) {
+	public Double encode(final String value) {
 		if (StringUtils.isEmpty(value)) {
-			return Double.NaN;
+			return null;
 		}
 		try {
 			return cache.get(value, new Callable<Double>() {
@@ -132,10 +132,10 @@ public class PhoneticDouble {
 
 	/*
 	 * TODO: we should really commit a change to commons collections4 to avoid
-	 * this
+	 * splitting the string (support char[] or byte[] in PatriciaTrie)
 	 */
 	private static String[] subStrings(final String value) {
-		String[] subStrings = new String[value.length()];
+		final String[] subStrings = new String[value.length()];
 		for (int x = 0; x < value.length(); x++) {
 			subStrings[x] = value.substring(x, x + 1);
 		}
@@ -151,7 +151,13 @@ public class PhoneticDouble {
 		return true;
 	}
 
-	public String decode(double d) {
+	/**
+	 * Output as a simple number, or decode the String.
+	 * 
+	 * @param d
+	 * @return
+	 */
+	public static String decode(double d) {
 		if (isRawNumber(d)) {
 			return String.valueOf(d);
 		}

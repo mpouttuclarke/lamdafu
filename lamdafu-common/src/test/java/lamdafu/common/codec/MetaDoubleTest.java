@@ -22,9 +22,9 @@ public class MetaDoubleTest {
 				!PhoneticDouble.isRawNumber(md64) && PhoneticDouble.isMD64(md64) && !PhoneticDouble.isMetaphone(md64));
 		assertEquals(-5.62949533990911E14, md64, 0.0D);
 		assertEquals(md64expected, target.decode(md64));
-		String phoneticExpected = "bilbo baggins";
+		String phoneticExpected = "bilbo baggins of bag end and barrelrider";
 		double phonetic = target.encode(phoneticExpected);
-		assertEquals(-5.62950111335563E14, phonetic, 0.0D);
+		assertEquals(-7.28535047247244E14, phonetic, 0.0D);
 		assertTrue(!PhoneticDouble.isRawNumber(phonetic) && !PhoneticDouble.isMD64(phonetic)
 				&& PhoneticDouble.isMetaphone(phonetic));
 		DoubleMetaphone dm = new DoubleMetaphone();
