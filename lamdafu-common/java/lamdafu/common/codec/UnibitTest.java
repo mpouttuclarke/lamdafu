@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.junit.Test;
 
+import lamdafu.common.codec.Unibit;
+
 public class UnibitTest {
 
 	@Test
