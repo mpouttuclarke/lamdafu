@@ -1,6 +1,23 @@
 package lamdafu.dsciprim;
 
-import static lamdafu.dsciprim.Primitives.*;
+import static lamdafu.dsciprim.Primitives.COUNT;
+import static lamdafu.dsciprim.Primitives.COUNT_DISTINCT;
+import static lamdafu.dsciprim.Primitives.COUNT_NULL;
+import static lamdafu.dsciprim.Primitives.COUNT_NaN;
+import static lamdafu.dsciprim.Primitives.COUNT_USABLE;
+import static lamdafu.dsciprim.Primitives.KURTOSIS;
+import static lamdafu.dsciprim.Primitives.MAX;
+import static lamdafu.dsciprim.Primitives.MEAN;
+import static lamdafu.dsciprim.Primitives.MEAN_ABS_DEVIATION;
+import static lamdafu.dsciprim.Primitives.MEDIAN;
+import static lamdafu.dsciprim.Primitives.MIN;
+import static lamdafu.dsciprim.Primitives.QUADRATIC_MEAN;
+import static lamdafu.dsciprim.Primitives.QUANTILE;
+import static lamdafu.dsciprim.Primitives.SKEWNESS;
+import static lamdafu.dsciprim.Primitives.STANDARD_DEVIATION;
+import static lamdafu.dsciprim.Primitives.SUM;
+import static lamdafu.dsciprim.Primitives.SUM_OF_SQUARES;
+import static lamdafu.dsciprim.Primitives.VARIANCE;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +30,7 @@ import cern.colt.buffer.DoubleBuffer;
 import cern.colt.list.DoubleArrayList;
 import cern.jet.random.engine.MersenneTwister;
 import hep.aida.bin.QuantileBin1D;
-import lamdafu.common.codec.PhoneticDouble;
+import lamdafu.common.codec.Unibit;
 
 public class StreamingCalc {
 
@@ -22,9 +39,10 @@ public class StreamingCalc {
 	private QuantileBin1D qb;
 	private DoubleBuffer queue;
 	private DoubleArrayList buff;
-	private PhoneticDouble pd = new PhoneticDouble();
+	private Unibit pd = new Unibit();
 	private transient final PatriciaTrie<Object> p = new PatriciaTrie<>();
-	private int quantiles;
+	private String qFormat;
+	private DoubleArrayList phis;
 	private int queueDepth;
 
 	public StreamingCalc() {
@@ -38,7 +56,8 @@ public class StreamingCalc {
 				false, 5);
 		queue = qb.buffered(queueDepth);
 		buff = new DoubleArrayList(queueDepth);
-		this.quantiles = quantiles;
+		qFormat = "%s%0" + (String.valueOf(quantiles).length() + 1) + "d";
+		phis = calcPhi(quantiles);
 		this.queueDepth = queueDepth;
 	};
 
@@ -112,9 +131,9 @@ public class StreamingCalc {
 		p.put(COUNT_NaN.alias, countNaN);
 		p.put(COUNT_USABLE.alias, countUsable);
 		p.put(COUNT_DISTINCT.alias, countDistinct);
-		p.put(MIN.alias, qb.min());
-		p.put(MAX.alias, qb.max());
-		p.put(MEDIAN.alias, qb.median());
+		p.put(MIN.alias, Unibit.decode(qb.min()));
+		p.put(MAX.alias, Unibit.decode(qb.max()));
+		p.put(MEDIAN.alias, Unibit.decode(qb.median()));
 		p.put(MEAN.alias, qb.mean());
 		p.put(QUADRATIC_MEAN.alias, qb.rms());
 		p.put(SUM.alias, qb.sum());
@@ -124,17 +143,20 @@ public class StreamingCalc {
 		p.put(MEAN_ABS_DEVIATION.alias, madMeanDelta / countUsable);
 		p.put(SKEWNESS.alias, qb.skew());
 		p.put(KURTOSIS.alias, qb.kurtosis());
-		String format = "%s%0" + (String.valueOf(quantiles).length() + 1) + "d";
-		double quantile = 1D/quantiles;
-		DoubleArrayList phis = new DoubleArrayList();
-		for(double d = quantile; d <= 1D; d += quantile) {
-			phis.add(d);
-		}
 		DoubleArrayList vals = qb.quantiles(phis);
-		for(int x = 0; x < vals.size(); x++) {
-			p.put(String.format(format, QUANTILE.alias, x + 1), vals.get(x));
+		for (int x = 0; x < vals.size(); x++) {
+			p.put(String.format(qFormat, QUANTILE.alias, x), Unibit.decode(vals.get(x)));
 		}
 		return Collections.unmodifiableSortedMap(new PatriciaTrie<>(p));
+	}
+
+	protected DoubleArrayList calcPhi(int quantiles) {
+		DoubleArrayList phis = new DoubleArrayList();
+		double incr = 1.0D / quantiles;
+		for (int i = 1; i <= quantiles; i++) {
+			phis.add(i * incr);
+		}
+		return phis;
 	}
 
 }

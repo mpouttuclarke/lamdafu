@@ -4,6 +4,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.codec.language.DoubleMetaphone;
+import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -18,6 +20,9 @@ import com.google.common.cache.CacheBuilder;
  * String is phonetically encoded and then the PM16 enum is used for a 4-bit
  * encoding of the phonetic characters.
  * 
+ * The packed value contains reserved bits so that more complex phonetic
+ * encodings can be added.
+ * 
  * Also supports utility methods to identify the encoded data type and also to
  * decode back to the original String (if literalCutoff or less chars) or the
  * phonetic string (if literalCutoff+ chars).
@@ -31,21 +36,61 @@ import com.google.common.cache.CacheBuilder;
  * @author mpouttuclarke
  *
  */
-public class PhoneticDouble {
+// TODO: add special date/time 4-bit encoding
+public class Unibit {
 
 	private static final MD16[] MD16_VALUES = MD16.values();
-
 	private static final MD64[] MD64_VALUES = MD64.values();
 
-	public static final int MAX_LITERAL_CUTOFF = 8;
+	public static final int LITERAL_CUTOFF_MAX = 8;
+	public static final int LITERAL_CUTOFF_DEFAULT = 4;
 
 	private static final String NUMERICS = "0123456789";
 
-	private int literalCutoff = 4;
+	public static final long ENCODED_IND_BITS = 0x10000000000000L;
+	public static final long MAX_SEGMENT_BITS = 0x00FFFFFFFFFFFFL;
+	public static final long ENCODED_MAX_BITS = 0x1FFFFFFFFFFFFFL;
+	public static final double ENCODED_MAX = Double.longBitsToDouble(-ENCODED_MAX_BITS);
+	public static final double ENCODED_MD64_MAX = Double.longBitsToDouble(-(ENCODED_IND_BITS | MAX_SEGMENT_BITS));
+	public static final long ENCODED_MD16_BITS = 0x11000000000000L;
+	public static final double ENCODED_MD16_MIN = Double.longBitsToDouble(-ENCODED_MD16_BITS);
+	public static final double ENCODED_MD16_MAX = Double.longBitsToDouble(-(ENCODED_MD16_BITS | MAX_SEGMENT_BITS));
+
+	private static final PatriciaTrie<MD64> MD64_TRIE = new PatriciaTrie<>();
+	private static final PatriciaTrie<MD32> MD32_TRIE = new PatriciaTrie<>();
+	private static final PatriciaTrie<MD16> MD16_TRIE = new PatriciaTrie<>();
+	private static final DoubleMetaphone DM = new DoubleMetaphone();
+
+	static {
+		for (MD64 validChars : MD64.values()) {
+			String stringVal = validChars.stringVal;
+			for (int x = 0; x < stringVal.length(); x++) {
+				String validChar = stringVal.substring(x, x + 1);
+				MD64_TRIE.put(validChar, validChars);
+			}
+		}
+		for (MD32 validChars : MD32.values()) {
+			String stringVal = validChars.stringVal;
+			for (int x = 0; x < stringVal.length(); x++) {
+				String validChar = stringVal.substring(x, x + 1);
+				MD32_TRIE.put(validChar, validChars);
+			}
+		}
+		for (MD16 validChars : MD16.values()) {
+			String stringVal = validChars.stringVal;
+			for (int x = 0; x < stringVal.length(); x++) {
+				String validChar = stringVal.substring(x, x + 1);
+				MD16_TRIE.put(validChar, validChars);
+			}
+		}
+		DM.setMaxCodeLen(12);
+	}
+
+	private int literalCutoff = LITERAL_CUTOFF_DEFAULT;
 	private int maxCacheSize = 64;
 	private transient Cache<String, Double> cache;
 
-	public PhoneticDouble() {
+	public Unibit() {
 		super();
 		initCache();
 	}
@@ -67,9 +112,9 @@ public class PhoneticDouble {
 	 * @param literalCutoff
 	 * @return
 	 */
-	public PhoneticDouble withLiteralCutoff(int literalCutoff) {
-		if (literalCutoff < 0 || literalCutoff > MAX_LITERAL_CUTOFF) {
-			this.literalCutoff = MAX_LITERAL_CUTOFF;
+	public Unibit withLiteralCutoff(int literalCutoff) {
+		if (literalCutoff < 0 || literalCutoff > LITERAL_CUTOFF_MAX) {
+			this.literalCutoff = LITERAL_CUTOFF_DEFAULT;
 		} else {
 			this.literalCutoff = literalCutoff;
 		}
@@ -82,7 +127,7 @@ public class PhoneticDouble {
 	 * @param maxCacheSize
 	 * @return
 	 */
-	public PhoneticDouble withMaxCacheSize(int maxCacheSize) {
+	public Unibit withMaxCacheSize(int maxCacheSize) {
 		this.maxCacheSize = maxCacheSize;
 		initCache();
 		return this;
@@ -109,7 +154,7 @@ public class PhoneticDouble {
 			return Double.NaN;
 		}
 		if (NumberUtils.isNumber(value)) {
-			return Statics.convertRawDouble(value);
+			return encodeRawDouble(value);
 		}
 		String[] subStrings = subStrings(value);
 		if (StringUtils.containsAny(value, NUMERICS) && containsNoMD32(subStrings)) {
@@ -121,13 +166,21 @@ public class PhoneticDouble {
 					stripNonNumeric.append(charAt);
 				}
 			}
-			return Statics.convertRawDouble(stripNonNumeric.toString());
+			return encodeRawDouble(stripNonNumeric.toString());
 		}
 		if (value.length() <= literalCutoff) {
-			return Statics.encodeMD64(subStrings);
+			return encodeMD64(subStrings);
 		} else {
-			return Statics.encodeMetaphone(value);
+			return encodeDoubleMetaphone(value);
 		}
+	}
+
+	protected double encodeRawDouble(final String value) {
+		double encoded = NumberUtils.toDouble(value, Double.NaN);
+		if (encoded <= ENCODED_MAX) { // prevent occlusion on encoded space
+			encoded = Double.NEGATIVE_INFINITY;
+		}
+		return encoded;
 	}
 
 	/*
@@ -144,25 +197,60 @@ public class PhoneticDouble {
 
 	private static boolean containsNoMD32(String... values) {
 		for (int x = 0; x < values.length; x++) {
-			if (Statics.MD32_TRIE.containsKey(values[x])) {
+			if (MD32_TRIE.containsKey(values[x])) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	private static double encodeMD64(String[] subStrings) {
+		long bits = 0L;
+		for (int x = 0; x < subStrings.length; x++) {
+			MD64 md64 = MD64_TRIE.get(subStrings[x]);
+			if (md64 == null) {
+				continue;
+			}
+			long xform = md64.bits;
+			if (x > 0) {
+				bits <<= 6;
+			}
+			bits |= xform;
+		}
+		bits |= ENCODED_IND_BITS;
+		return Double.longBitsToDouble(-bits);
+	}
+
+	private static double encodeDoubleMetaphone(final String value) {
+		String dm = DM.doubleMetaphone(value);
+		long bits = 0L;
+		for (int x = 0; x < dm.length(); x++) {
+			MD16 md16 = MD16_TRIE.get(dm.substring(x, x + 1));
+			if (md16 == null) {
+				continue;
+			}
+			if (x > 0) {
+				bits <<= 4;
+			}
+			bits |= md16.bits;
+		}
+		bits |= ENCODED_MD16_BITS;
+		return Double.longBitsToDouble(-bits);
+	}
+
 	/**
-	 * Output as a simple number, or decode the String.
+	 * Output as a simple Double, or decode the String if the number represents
+	 * an encoded String.
 	 * 
 	 * @param d
 	 * @return
 	 */
-	public static String decode(double d) {
+	public static Object decode(double d) {
+		long bits = -Double.doubleToRawLongBits(d);
 		if (isRawNumber(d)) {
-			return String.valueOf(d);
+			return d;
 		}
 		StringBuilder result = new StringBuilder(15);
-		long bits = (long) (d * -1.0D);
 		long bitmask = 0x3F; // 6-bit
 		if (isMD64(d)) {
 			for (int x = 6 * 7; x > -1; x -= 6) {
@@ -172,7 +260,7 @@ public class PhoneticDouble {
 					result.append(MD64_VALUES[i].charVal);
 				}
 			}
-		} else if (isMetaphone(d)) {
+		} else if (d <= ENCODED_MD16_MAX) {
 			bitmask /= 4; // Switch to 4-bit
 			for (int x = 4 * 11; x > -1; x -= 4) {
 				long shift = bits >> x;
@@ -184,36 +272,16 @@ public class PhoneticDouble {
 		}
 		return result.toString();
 	}
-
-	/**
-	 * Indicates if the parameter is a raw number without any embedded encoded
-	 * string.
-	 * 
-	 * @param d
-	 * @return
-	 */
+	
 	public static boolean isRawNumber(double d) {
-		return d > -Statics.MD64_START;
+		return d > ENCODED_MAX;
 	}
 
-	/**
-	 * Indicates the parameter is an MD64 encoded string up to 8 characters.
-	 * 
-	 * @param d
-	 * @return
-	 */
-	public static boolean isMD64(double d) {
-		return d <= -Statics.MD64_START && d > -Statics.MD32_16_START;
+	public static boolean isMD16(double d) {
+		return d <= ENCODED_MD16_MAX && d >= ENCODED_MD16_MIN;
 	}
-
-	/**
-	 * Indicates the parameter is a metaphone encoded value using MD32 and MD16
-	 * encoding up to 15 characters.
-	 * 
-	 * @param d
-	 * @return
-	 */
-	public static boolean isMetaphone(double d) {
-		return d <= -Statics.MD32_16_START && d > -Statics.MD32_16_START + -Statics.MD64_START;
+	
+	protected static boolean isMD64(double d) {
+		return d <= ENCODED_MD64_MAX;
 	}
 }
