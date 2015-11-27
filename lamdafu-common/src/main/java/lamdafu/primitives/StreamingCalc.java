@@ -30,7 +30,7 @@ import cern.colt.buffer.DoubleBuffer;
 import cern.colt.list.DoubleArrayList;
 import cern.jet.random.engine.MersenneTwister;
 import hep.aida.bin.QuantileBin1D;
-import lamdafu.common.codec.Unibit;
+import lamdafu.codec.Unibit;
 
 public class StreamingCalc {
 

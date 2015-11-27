@@ -1,4 +1,4 @@
-package lamdafu.common.codec;
+package lamdafu.codec;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -21,7 +21,7 @@ import com.google.common.cache.CacheBuilder;
  * encoding of the phonetic characters.
  * 
  * The packed value contains reserved bits so that more complex phonetic
- * encodings can be added.
+ * encodings (including international charsets) can be added.
  * 
  * Also supports utility methods to identify the encoded data type and also to
  * decode back to the original String (if literalCutoff or less chars) or the

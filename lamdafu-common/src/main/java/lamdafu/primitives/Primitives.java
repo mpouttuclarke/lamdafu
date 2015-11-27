@@ -6,9 +6,7 @@ package lamdafu.primitives;
 /**
  * Set of data science primitives, with associated properties. Quantiles will
  * have suffixes depending on the precision of the quantile, with min and max
- * being the bounds. For example, percentiles will have suffixes
- * quantile_01-quantile_99, with min and max being the bottom and top quantile
- * values respectively.
+ * being the bounds. For example, percentiles will have suffixes q000-q099.
  * 
  * @author mpouttuc
  *

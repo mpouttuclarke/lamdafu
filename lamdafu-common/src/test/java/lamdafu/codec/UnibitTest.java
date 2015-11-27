@@ -1,9 +1,11 @@
-package lamdafu.common.codec;
+package lamdafu.codec;
 
 import static org.junit.Assert.*;
 
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.junit.Test;
+
+import lamdafu.codec.Unibit;
 
 public class UnibitTest {
 

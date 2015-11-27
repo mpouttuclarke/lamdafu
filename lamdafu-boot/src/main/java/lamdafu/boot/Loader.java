@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
 import java.util.ServiceLoader;
 
 /**
@@ -27,14 +27,13 @@ import java.util.ServiceLoader;
  * @author mpouttuclarke
  *
  */
-public class Boot {
+public class Loader {
 
-	public static final String KERNAL_KEY = "λ福";
-	public static final String METAMODEL_KEY = "metamodel";
+	public static final String LAMDA_KEY = "λ福";
 
 	private final URLClassLoader loader;
 
-	protected Boot(URL... urls) {
+	protected Loader(URL... urls) {
 		loader = new URLClassLoader(urls, String.class.getClassLoader());
 	}
 
@@ -44,7 +43,7 @@ public class Boot {
 	 * @param urls
 	 * @return
 	 */
-	public static Boot from(URL... urls) {
+	public static Loader from(URL... urls) {
 		if (urls == null || urls.length < 1) {
 			try {
 				urls = new URL[] { new File(".").toURI().toURL() };
@@ -52,7 +51,7 @@ public class Boot {
 				return null;
 			}
 		}
-		return new Boot(urls);
+		return new Loader(urls);
 	}
 
 	/**
@@ -64,15 +63,14 @@ public class Boot {
 	 * @throws IllegalArgumentException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Map<Object, Object> byName(String name) throws IllegalArgumentException {
-		ServiceLoader<Map> load = ServiceLoader.load(Map.class, loader);
-		Iterator<Map> i = load.iterator();
-		List<Map> impls = new ArrayList<>();
+	public SortedMap<Object, Object> byName(String name) throws IllegalArgumentException {
+		ServiceLoader<SortedMap> load = ServiceLoader.load(SortedMap.class, loader);
+		Iterator<SortedMap> i = load.iterator();
+		List<SortedMap> impls = new ArrayList<>();
 		while (i.hasNext()) {
-			Map next = i.next();
-			Map kernal = Cast.get(next, KERNAL_KEY, Map.class);
-			if (kernal != null && kernal.containsKey(name)) {
-				impls.add(Cast.get(kernal, kernal.get(name), Map.class));
+			SortedMap next = i.next();
+			if (Cast.get(next, LAMDA_KEY, SortedMap.class) != null && next.containsKey(name)) {
+				impls.add(next);
 			}
 		}
 		if (impls.size() > 1) {
@@ -88,14 +86,16 @@ public class Boot {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Iterable<String> metamodel() {
-		List<String> mm = new ArrayList<>();
-		ServiceLoader<Map> load = ServiceLoader.load(Map.class, loader);
-		Iterator<Map> i = load.iterator();
+	public Iterable<SortedMap<Object, Object>> metamodel() {
+		List<SortedMap<Object, Object>> mm = new ArrayList<>();
+		ServiceLoader<SortedMap> load = ServiceLoader.load(SortedMap.class, loader);
+		Iterator<SortedMap> i = load.iterator();
 		while (i.hasNext()) {
-			Map next = i.next();
-			String meta = Cast.get(next, KERNAL_KEY,  String.class);
-			mm.add(meta);
+			SortedMap next = i.next();
+			SortedMap meta = Cast.get(next, LAMDA_KEY, SortedMap.class);
+			if (meta != null) {
+				mm.add(meta);
+			}
 		}
 		return mm;
 	}

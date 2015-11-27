@@ -7,7 +7,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>lamdafu-common</artifactId>
+	<name>λ福 - LamdaFu Common</name>
 	<dependencies>
+		<dependency>
+			<groupId>lamdafu</groupId>
+			<artifactId>lamdafu-boot</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -39,5 +45,4 @@
 			<version>1.2.0</version>
 		</dependency>
 	</dependencies>
-	<name>λ福 - LamdaFu Common</name>
 </project>

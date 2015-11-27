@@ -1,4 +1,4 @@
-package lamdafu.common.codec;
+package lamdafu.codec;
 
 /**
  * Metadata for a subset of 64 meaningful ASCII characters, allowing 6-bit

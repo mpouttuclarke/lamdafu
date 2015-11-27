@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import lamdafu.common.codec.Unibit;
+import lamdafu.codec.Unibit;
 import lamdafu.primitives.StreamingCalc;
 
 public class StreamingCalcTest {

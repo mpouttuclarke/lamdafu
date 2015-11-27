@@ -1,4 +1,4 @@
-package lamdafu.common.codec;
+package lamdafu.codec;
 
 /**
  * Metadata for the 16 valid metaphone characters after the first, allowing
