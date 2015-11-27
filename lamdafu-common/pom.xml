@@ -39,4 +39,5 @@
 			<version>1.2.0</version>
 		</dependency>
 	</dependencies>
+	<name>λ福 - LamdaFu Common</name>
 </project>

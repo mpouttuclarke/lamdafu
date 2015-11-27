@@ -19,11 +19,11 @@ public class UnibitTest {
 		String md64expected = "___F____";
 		double md64 = target.encode(md64expected);
 		assertTrue(!Unibit.isRawNumber(md64) && Unibit.isMD64(md64) && !Unibit.isMD16(md64));
-		assertEquals(-5.62949533990911E14, md64, 0.0D);
+		assertEquals(-1.7415153081094787E308, md64, 0.0D);
 		assertEquals(md64expected, Unibit.decode(md64));
 		String phoneticExpected = "bilbo baggins of bag end and barrelrider";
 		double phonetic = target.encode(phoneticExpected);
-		assertEquals(-7.28535047247244E14, phonetic, 0.0D);
+		assertEquals(-1.7084670839062802E308, phonetic, 0.0D);
 		assertTrue(!Unibit.isRawNumber(phonetic) && !Unibit.isMD64(phonetic)
 				&& Unibit.isMD16(phonetic));
 		DoubleMetaphone dm = new DoubleMetaphone();

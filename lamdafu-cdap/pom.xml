@@ -6,8 +6,8 @@
 		<artifactId>lamdafu-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>lamdafu-dsciprim</artifactId>
-	<name>λ福 - LamdaFu Data Science Primitives</name>
+	<artifactId>lamdafu-cdap</artifactId>
+	<name>λ福 - LamdaFu for CDAP</name>
 	<dependencies>
 		<dependency>
 			<groupId>lamdafu</groupId>
