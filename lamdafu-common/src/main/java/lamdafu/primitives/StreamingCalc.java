@@ -24,26 +24,29 @@ import java.util.Collections;
 import java.util.SortedMap;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.FastMath;
 
 import cern.colt.buffer.DoubleBuffer;
 import cern.colt.list.DoubleArrayList;
 import cern.jet.random.engine.MersenneTwister;
 import hep.aida.bin.QuantileBin1D;
+import lamdafu.base.LamdaMap;
 import lamdafu.codec.Unibit;
 
-public class StreamingCalc {
+public class StreamingCalc extends LamdaMap {
 
+	private static final long serialVersionUID = -4240126532387563198L;
 	private long count, countNull, countNaN, countUsable, countDistinct;
 	private double madMeanDelta;
 	private QuantileBin1D qb;
 	private DoubleBuffer queue;
 	private DoubleArrayList buff;
 	private Unibit pd = new Unibit();
-	private transient final PatriciaTrie<Object> p = new PatriciaTrie<>();
 	private String qFormat;
 	private DoubleArrayList phis;
 	private int queueDepth;
+	private transient final PatriciaTrie<Object> p = new PatriciaTrie<>();
 
 	public StreamingCalc() {
 		super();
@@ -80,7 +83,7 @@ public class StreamingCalc {
 			addOne(val);
 		}
 	}
-
+	
 	public void add(Double... vals) {
 		if (vals == null) {
 			count++;
@@ -124,7 +127,7 @@ public class StreamingCalc {
 		return result;
 	}
 
-	public SortedMap<String, Object> snapshotPrimitives() {
+	public SortedMap<String, Object> snapshot() {
 		microBatch();
 		p.put(COUNT.alias, count);
 		p.put(COUNT_NULL.alias, countNull);
@@ -158,5 +161,41 @@ public class StreamingCalc {
 		}
 		return phis;
 	}
+
+	@Override
+	public Object put(String key, Object value) {
+		if (StringUtils.isEmpty(key)) {
+			throw new NullPointerException("key null or empty");
+		} else if (StringUtils.equals("add", key)) {
+			if (value == null) {
+				add((String) null);
+			} else if (value.getClass().isArray()) {
+				if (value instanceof double[]) {
+					add((double[]) value);
+				} else if (value instanceof Double[]) {
+					add((Double[]) value);
+				} else if (value instanceof String[]) {
+					add((String[]) value);
+				}
+			} else {
+				if (value instanceof Double) {
+					addOne((Double) value);
+				} else if (value instanceof String) {
+					add((String) value);
+				}
+			}
+		}
+		return Void.TYPE;
+	}
+
+	@Override
+	public Object get(Object key) {
+		if(key != null && StringUtils.equals("snapshot", String.valueOf(key))) {
+			return snapshot();
+		}
+		return null;
+	}
+	
+	
 
 }

@@ -15,10 +15,10 @@ public class StreamingCalcTest {
 		for(int x = 0; x < 10000000; x++) {
 			target.addOne(Math.random() * (Integer.MAX_VALUE - (x % 489392977)));
 		}
-		System.out.println(target.snapshotPrimitives());
+		System.out.println(target.snapshot());
 		target = new StreamingCalc(12, 1024);
 		target.add("jimbo", "jim", "bob", "zeke");
-		System.out.println(target.snapshotPrimitives());
+		System.out.println(target.snapshot());
 	}
 
 }

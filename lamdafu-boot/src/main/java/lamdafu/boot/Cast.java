@@ -6,7 +6,8 @@ package lamdafu.boot;
 import java.util.Map;
 
 /**
- * Utilities for strong typing in Map.get() and Objects, more robust than JDK standard Class.cast() 
+ * Utilities for strong typing in Map.get() and Objects, more robust than JDK
+ * standard Class.cast()
  * 
  * @author mpouttuclarke
  *
@@ -25,7 +26,7 @@ public class Cast {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public static <T> T get(Map<Object, Object> map, Object key, Class<T> returnType) {
+	public static <T> T get(Map<? extends String, ? extends Object> map, Object key, Class<T> returnType) {
 		if (map == null || key == null || returnType == null) {
 			return null;
 		}
@@ -49,7 +50,8 @@ public class Cast {
 	 * @throws ClassCastException
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public static <T> T get(Map<Object, Object> map, Object key) throws NullPointerException, ClassCastException {
+	public static <T> T get(Map<? extends String, ? extends Object> map, String key)
+			throws NullPointerException, ClassCastException {
 		return (T) map.get(key);
 	}
 

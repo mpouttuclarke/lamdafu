@@ -63,7 +63,7 @@ public class Loader {
 	 * @throws IllegalArgumentException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public SortedMap<Object, Object> byName(String name) throws IllegalArgumentException {
+	public SortedMap<? extends String, ? extends Object> byName(String name) throws IllegalArgumentException {
 		ServiceLoader<SortedMap> load = ServiceLoader.load(SortedMap.class, loader);
 		Iterator<SortedMap> i = load.iterator();
 		List<SortedMap> impls = new ArrayList<>();
@@ -86,8 +86,8 @@ public class Loader {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Iterable<SortedMap<Object, Object>> metamodel() {
-		List<SortedMap<Object, Object>> mm = new ArrayList<>();
+	public Iterable<SortedMap<? extends String, ? extends Object>> metamodel() {
+		List<SortedMap<? extends String, ? extends Object>> mm = new ArrayList<>();
 		ServiceLoader<SortedMap> load = ServiceLoader.load(SortedMap.class, loader);
 		Iterator<SortedMap> i = load.iterator();
 		while (i.hasNext()) {

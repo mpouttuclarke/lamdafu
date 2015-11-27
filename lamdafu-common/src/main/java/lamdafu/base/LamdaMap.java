@@ -20,11 +20,6 @@ public abstract class LamdaMap extends PatriciaTrie<Object> {
 	}
 
 	@Override
-	public Object getOrDefault(Object key, Object defaultValue) {
-		return null;
-	}
-
-	@Override
 	public Object putIfAbsent(String key, Object value) {
 		return null;
 	}
