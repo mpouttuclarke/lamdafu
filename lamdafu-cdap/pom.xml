@@ -10,14 +10,37 @@
 	<name>λ福 - LamdaFu for CDAP</name>
 	<dependencies>
 		<dependency>
+			<groupId>co.cask.cdap</groupId>
+			<artifactId>cdap-unit-test</artifactId>
+			<version>3.2.0</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>jdk.tools</artifactId>
+					<groupId>jdk.tools</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>lamdafu</groupId>
 			<artifactId>lamdafu-common</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>co.cask.cdap</groupId>
+			<artifactId>cdap-api</artifactId>
+			<version>3.2.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.esotericsoftware.kryo</groupId>
 			<artifactId>kryo</artifactId>
-			<version>2.21</version>
+			<version>2.24.0</version>
 		</dependency>
 	</dependencies>
 </project>

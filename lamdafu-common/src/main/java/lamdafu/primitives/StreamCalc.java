@@ -34,25 +34,25 @@ import hep.aida.bin.QuantileBin1D;
 import lamdafu.base.LamdaMap;
 import lamdafu.codec.Unibit;
 
-public class StreamingCalc extends LamdaMap {
+public class StreamCalc extends LamdaMap {
 
-	private static final long serialVersionUID = -4240126532387563198L;
-	private long count, countNull, countNaN, countUsable, countDistinct;
-	private double madMeanDelta;
-	private QuantileBin1D qb;
-	private DoubleBuffer queue;
-	private DoubleArrayList buff;
-	private Unibit pd = new Unibit();
-	private String qFormat;
-	private DoubleArrayList phis;
-	private int queueDepth;
-	private transient final PatriciaTrie<Object> p = new PatriciaTrie<>();
+	static final long serialVersionUID = -4240126532387563198L;
+	long count, countNull, countNaN, countUsable, countDistinct;
+	double madMeanDelta;
+	QuantileBin1D qb;
+	DoubleBuffer queue;
+	DoubleArrayList buff;
+	String qFormat;
+	DoubleArrayList phis;
+	int queueDepth;
+	transient Unibit pd = new Unibit();
+	transient final PatriciaTrie<Object> p = new PatriciaTrie<>();
 
-	public StreamingCalc() {
+	public StreamCalc() {
 		super();
 	}
 
-	public StreamingCalc(int quantiles, int queueDepth) {
+	public StreamCalc(int quantiles, int queueDepth) {
 		super();
 		qb = new QuantileBin1D(false, Long.MAX_VALUE, 1.0e-5D, 1.0e-5D, quantiles,
 				new MersenneTwister(Arrays.hashCode(new Object[] { Thread.currentThread(), System.nanoTime() })), false,
@@ -63,6 +63,20 @@ public class StreamingCalc extends LamdaMap {
 		phis = calcPhi(quantiles);
 		this.queueDepth = queueDepth;
 	};
+
+	public void add(Object... vals) {
+		if (vals == null) {
+			count++;
+			countNull++;
+		}
+		for (Object val : vals) {
+			if (String.class.isAssignableFrom(val.getClass())) {
+				addOne(pd.encode(String.valueOf(val)));
+			} else if (Double.class.isAssignableFrom(val.getClass())) {
+				addOne((Double) val);
+			}
+		}
+	}
 
 	public void add(String... vals) {
 		if (vals == null) {
@@ -83,7 +97,7 @@ public class StreamingCalc extends LamdaMap {
 			addOne(val);
 		}
 	}
-	
+
 	public void add(Double... vals) {
 		if (vals == null) {
 			count++;
@@ -119,7 +133,7 @@ public class StreamingCalc extends LamdaMap {
 		return size;
 	}
 
-	private double totalDelta(DoubleArrayList vals, double centroid) {
+	double totalDelta(DoubleArrayList vals, double centroid) {
 		double result = 0;
 		for (int x = 0; x < vals.size(); x++) {
 			result += FastMath.abs(vals.get(x) - centroid);
@@ -190,12 +204,10 @@ public class StreamingCalc extends LamdaMap {
 
 	@Override
 	public Object get(Object key) {
-		if(key != null && StringUtils.equals("snapshot", String.valueOf(key))) {
+		if (key != null && StringUtils.equals("snapshot", String.valueOf(key))) {
 			return snapshot();
 		}
 		return null;
 	}
-	
-	
 
 }
