@@ -11,7 +11,7 @@ public class StreamStatFlow extends AbstractFlow {
 		setDescription("Calculates streaming stats");
 		addFlowlet(StreamStatParseFlowlet.NAME, new StreamStatParseFlowlet());
 		addFlowlet(StreamStatCalcFlowlet.NAME, new StreamStatCalcFlowlet());
-		connectStream(StreamStatApp.STREAM_NAME, StreamStatCalcFlowlet.NAME);
+		connectStream(StreamStatApp.STREAM_NAME, StreamStatParseFlowlet.NAME);
 		connect(StreamStatParseFlowlet.NAME, StreamStatCalcFlowlet.NAME);
 	}
 

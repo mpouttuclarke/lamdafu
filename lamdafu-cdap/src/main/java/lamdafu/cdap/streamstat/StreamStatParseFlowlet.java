@@ -18,7 +18,7 @@ public class StreamStatParseFlowlet extends AbstractFlowlet {
 	public void process(StreamEvent diskMetrics) {
 		String event = Charsets.UTF_8.decode(diskMetrics.getBody()).toString();
 		String[] fields = event.split("\t", 2);
-		if(StringUtils.isEmpty(fields[0])) {
+		if(StringUtils.isEmpty(fields[0]) || fields.length < 2) {
 			return;
 		}
 		// Trunc to sane length for stat calculation
