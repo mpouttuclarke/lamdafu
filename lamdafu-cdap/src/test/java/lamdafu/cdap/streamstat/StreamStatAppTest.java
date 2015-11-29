@@ -25,58 +25,57 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class StreamStatAppTest extends TestBase {
-  private static final Gson GSON = new Gson();
+	private static final Gson GSON = new Gson();
 
-  @Test
-  public void test() throws Exception {
-    // Deploy the application
-    ApplicationManager appManager = deployApplication(StreamStatApp.class);
+	@Test
+	public void test() throws Exception {
+		// Deploy the application
+		ApplicationManager appManager = deployApplication(StreamStatApp.class);
 
-    // Start the flow
-    FlowManager flowManager = appManager.getFlowManager(StreamStatFlow.NAME);
-    flowManager.start();
+		// Start the flow
+		FlowManager flowManager = appManager.getFlowManager(StreamStatFlow.NAME);
+		flowManager.start();
 
-    try {
-      StreamManager streamManager = getStreamManager(StreamStatApp.STREAM_NAME);
-      streamManager.send("disk1\t100");
-      streamManager.send("disk1\t999");
-      streamManager.send("disk1\t1000");
-      streamManager.send("disk1\t1001");
-      streamManager.send("disk1\t5000");
-      streamManager.send("disk1\t10000");
-      streamManager.send("disk2\t100");
-      streamManager.send("disk2\t1000");
-      streamManager.send("disk2\t5000");
-      streamManager.send("disk2\t10000");
+		try {
+			StreamManager streamManager = getStreamManager(StreamStatApp.STREAM_NAME);
+			streamManager.send("key1\t100");
+			streamManager.send("key1\t999");
+			streamManager.send("key1\t1000");
+			streamManager.send("key1\t1001");
+			streamManager.send("key1\t5000");
+			streamManager.send("key1\t10000");
+			streamManager.send("key2\t100");
+			streamManager.send("key2\t1000");
+			streamManager.send("key2\t5000");
+			streamManager.send("key2\t10000");
 
-      RuntimeMetrics countMetrics = flowManager.getFlowletMetrics(StreamStatParseFlowlet.NAME);
-      countMetrics.waitForProcessed(10, 3, TimeUnit.SECONDS);
-      countMetrics = flowManager.getFlowletMetrics(StreamStatCalcFlowlet.NAME);
-      countMetrics.waitForProcessed(5, 3, TimeUnit.SECONDS);
+			RuntimeMetrics countMetrics = flowManager.getFlowletMetrics(StreamStatParseFlowlet.NAME);
+			countMetrics.waitForProcessed(10, 3, TimeUnit.SECONDS);
+			countMetrics = flowManager.getFlowletMetrics(StreamStatCalcFlowlet.NAME);
+			countMetrics.waitForProcessed(5, 3, TimeUnit.SECONDS);
 
+			// Start service and verify
+			ServiceManager serviceManager = appManager.getServiceManager(StreamStatHttpHandler.NAME);
+			serviceManager.start();
+			serviceManager.waitForStatus(true);
+			try {
+				URL serviceUrl = serviceManager.getServiceURL();
 
-      // Start service and verify
-      ServiceManager serviceManager = appManager.getServiceManager(StreamStatHttpHandler.NAME);
-      serviceManager.start();
-      serviceManager.waitForStatus(true);
-      try {
-        URL serviceUrl = serviceManager.getServiceURL();
-
-        URL url = new URL(serviceUrl, "stats/all");
-        HttpRequest request = HttpRequest.get(url).build();
-        HttpResponse response = HttpRequests.execute(request);
-        Assert.assertEquals(200, response.getResponseCode());
-        Map<String, String> slowDisks = GSON.fromJson(response.getResponseBodyAsString(Charsets.UTF_8),
-                                                      new TypeToken<Map<String, String>>() {}.getType());
-        // disk1 should be classified as slow and disk2 should not.
-        Assert.assertEquals(1, slowDisks.size());
-        Assert.assertTrue(slowDisks.containsKey("disk1"));
-      } finally {
-        serviceManager.stop();
-        serviceManager.waitForStatus(false);
-      }
-    } finally {
-      flowManager.stop();
-    }
-  }
+				URL url = new URL(serviceUrl, "stats/all");
+				HttpRequest request = HttpRequest.get(url).build();
+				HttpResponse response = HttpRequests.execute(request);
+				Assert.assertEquals(200, response.getResponseCode());
+				Map<String, Map<String, Object>> stats = GSON.fromJson(response.getResponseBodyAsString(Charsets.UTF_8),
+						new TypeToken<Map<String, Map<String, Object>>>() {
+						}.getType());
+				Assert.assertEquals(2, stats.size());
+				Assert.assertTrue(stats.containsKey("key1"));
+			} finally {
+				serviceManager.stop();
+				serviceManager.waitForStatus(false);
+			}
+		} finally {
+			flowManager.stop();
+		}
+	}
 }

@@ -15,9 +15,7 @@ import co.cask.cdap.api.service.http.AbstractHttpServiceHandler;
 import co.cask.cdap.api.service.http.HttpServiceContext;
 import co.cask.cdap.api.service.http.HttpServiceRequest;
 import co.cask.cdap.api.service.http.HttpServiceResponder;
-import lamdafu.primitives.StreamCalc;
 
-@Path("stats")
 public class StreamStatHttpHandler extends AbstractHttpServiceHandler {
 	static final String NAME = "StreamStatService";
 
@@ -30,15 +28,14 @@ public class StreamStatHttpHandler extends AbstractHttpServiceHandler {
 		ser = new StreamCalcKryo();
 	}
 
-	@Path("all")
+	@Path("stats/all")
 	@GET
 	public void getAllStats(HttpServiceRequest request, HttpServiceResponder responder) {
 		Iterator<KeyValue<byte[], byte[]>> streamStatScan = streamStat.scan(null, null);
 		PatriciaTrie<Map<String, Object>> results = new PatriciaTrie<>();
 		while (streamStatScan.hasNext()) {
 			KeyValue<byte[], byte[]> result = streamStatScan.next();
-			ser.in.setBuffer(result.getValue());
-			results.put(new String(result.getKey()), ser.kryo.readObject(ser.in, StreamCalc.class).snapshot());
+			results.put(new String(result.getKey()), ser.read(result.getValue()).snapshot());
 		}
 		responder.sendJson(200, results);
 	}

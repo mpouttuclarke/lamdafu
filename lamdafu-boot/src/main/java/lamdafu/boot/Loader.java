@@ -69,7 +69,7 @@ public class Loader {
 		List<SortedMap> impls = new ArrayList<>();
 		while (i.hasNext()) {
 			SortedMap next = i.next();
-			if (Cast.get(next, LAMDA_KEY, SortedMap.class) != null && next.containsKey(name)) {
+			if (Cast.getAs(next, LAMDA_KEY, SortedMap.class) != null && next.containsKey(name)) {
 				impls.add(next);
 			}
 		}
@@ -92,7 +92,7 @@ public class Loader {
 		Iterator<SortedMap> i = load.iterator();
 		while (i.hasNext()) {
 			SortedMap next = i.next();
-			SortedMap meta = Cast.get(next, LAMDA_KEY, SortedMap.class);
+			SortedMap meta = Cast.getAs(next, LAMDA_KEY, SortedMap.class);
 			if (meta != null) {
 				mm.add(meta);
 			}

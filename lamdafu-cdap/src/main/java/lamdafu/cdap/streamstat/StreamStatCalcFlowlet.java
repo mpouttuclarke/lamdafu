@@ -53,16 +53,15 @@ public class StreamStatCalcFlowlet extends AbstractFlowlet {
 			byte[] keyBytes = entry.getKey().getBytes();
 			byte[] statKryo = streamStat.read(keyBytes);
 			StreamCalc streamCalc = null;
-			if(!ArrayUtils.isEmpty(statKryo)) {
-				ser.in.setBuffer(statKryo);
-				streamCalc = ser.kryo.readObject(ser.in, StreamCalc.class);
+			if (!ArrayUtils.isEmpty(statKryo)) {
+				streamCalc = ser.read(statKryo);
 			} else {
+				// TODO: make settings configurable
 				streamCalc = new StreamCalc(10, 1024 * 10);
 			}
 			List<String> values = entry.getValue();
 			streamCalc.add(values.toArray());
-			ser.kryo.writeObject(ser.out, streamCalc);
-			streamStat.write(keyBytes, ArrayUtils.subarray(ser.out.getBuffer(), 0, ser.out.position()));
+			streamStat.write(keyBytes, ser.write(streamCalc));
 		}
 	}
 }

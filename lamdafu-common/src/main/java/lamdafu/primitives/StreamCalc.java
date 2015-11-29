@@ -45,8 +45,7 @@ public class StreamCalc extends LamdaMap {
 	String qFormat;
 	DoubleArrayList phis;
 	int queueDepth;
-	transient Unibit pd = new Unibit();
-	transient final PatriciaTrie<Object> p = new PatriciaTrie<>();
+	Unibit unibit;
 
 	public StreamCalc() {
 		super();
@@ -57,11 +56,13 @@ public class StreamCalc extends LamdaMap {
 		qb = new QuantileBin1D(false, Long.MAX_VALUE, 1.0e-5D, 1.0e-5D, quantiles,
 				new MersenneTwister(Arrays.hashCode(new Object[] { Thread.currentThread(), System.nanoTime() })), false,
 				false, 5);
-		queue = qb.buffered(queueDepth);
 		buff = new DoubleArrayList(queueDepth);
+		queue = qb.buffered(queueDepth);
 		qFormat = "%s%0" + (String.valueOf(quantiles).length() + 1) + "d";
 		phis = calcPhi(quantiles);
 		this.queueDepth = queueDepth;
+		unibit = new Unibit();
+		unibit.initCache();
 	};
 
 	public void add(Object... vals) {
@@ -71,40 +72,10 @@ public class StreamCalc extends LamdaMap {
 		}
 		for (Object val : vals) {
 			if (String.class.isAssignableFrom(val.getClass())) {
-				addOne(pd.encode(String.valueOf(val)));
+				addOne(unibit.encode(String.valueOf(val)));
 			} else if (Double.class.isAssignableFrom(val.getClass())) {
 				addOne((Double) val);
 			}
-		}
-	}
-
-	public void add(String... vals) {
-		if (vals == null) {
-			count++;
-			countNull++;
-		}
-		for (String val : vals) {
-			addOne(pd.encode(val));
-		}
-	}
-
-	public void add(double... vals) {
-		if (vals == null) {
-			count++;
-			countNull++;
-		}
-		for (double val : vals) {
-			addOne(val);
-		}
-	}
-
-	public void add(Double... vals) {
-		if (vals == null) {
-			count++;
-			countNull++;
-		}
-		for (Double val : vals) {
-			addOne(val);
 		}
 	}
 
@@ -143,6 +114,7 @@ public class StreamCalc extends LamdaMap {
 
 	public SortedMap<String, Object> snapshot() {
 		microBatch();
+		PatriciaTrie<Object> p = new PatriciaTrie<>();
 		p.put(COUNT.alias, count);
 		p.put(COUNT_NULL.alias, countNull);
 		p.put(COUNT_NaN.alias, countNaN);
@@ -184,13 +156,7 @@ public class StreamCalc extends LamdaMap {
 			if (value == null) {
 				add((String) null);
 			} else if (value.getClass().isArray()) {
-				if (value instanceof double[]) {
-					add((double[]) value);
-				} else if (value instanceof Double[]) {
-					add((Double[]) value);
-				} else if (value instanceof String[]) {
-					add((String[]) value);
-				}
+				add(value);
 			} else {
 				if (value instanceof Double) {
 					addOne((Double) value);

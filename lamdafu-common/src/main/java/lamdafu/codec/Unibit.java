@@ -1,8 +1,8 @@
 package lamdafu.codec;
 
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -37,8 +37,9 @@ import com.google.common.cache.CacheBuilder;
  *
  */
 // TODO: add special date/time 4-bit encoding
-public class Unibit {
+public class Unibit implements Serializable {
 
+	private static final long serialVersionUID = 6285670160842403438L;
 	private static final MD16[] MD16_VALUES = MD16.values();
 	private static final MD64[] MD64_VALUES = MD64.values();
 
@@ -92,14 +93,13 @@ public class Unibit {
 
 	public Unibit() {
 		super();
-		initCache();
 	}
 
 	/**
 	 * Initializes or resets the operation cache.
 	 */
 	public void initCache() {
-		cache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MILLISECONDS).maximumSize(maxCacheSize).build();
+		cache = CacheBuilder.newBuilder().maximumSize(maxCacheSize).build();
 	}
 
 	/**
@@ -129,7 +129,6 @@ public class Unibit {
 	 */
 	public Unibit withMaxCacheSize(int maxCacheSize) {
 		this.maxCacheSize = maxCacheSize;
-		initCache();
 		return this;
 	}
 
@@ -138,6 +137,9 @@ public class Unibit {
 			return null;
 		}
 		try {
+			if(cache == null) {
+				initCache();
+			}
 			return cache.get(value, new Callable<Double>() {
 				@Override
 				public Double call() throws Exception {
