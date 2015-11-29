@@ -1,5 +1,9 @@
 package lamdafu.cdap.streamstat;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.objenesis.strategy.SerializingInstantiatorStrategy;
 
@@ -8,6 +12,8 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import lamdafu.primitives.StreamCalc;
 
@@ -18,26 +24,57 @@ import lamdafu.primitives.StreamCalc;
  *
  */
 public class StreamCalcKryo {
-	private Kryo kryo;
-	private byte[] buff = new byte[1024 * 512];
-	private Serializer<?> ser;
+	private static final Cache<Thread, KryoVals> BUFF_CACHE;
+
+	static class KryoVals {
+		final Kryo kryo;
+		final Serializer<?> ser;
+		final byte[] buff;
+
+		protected KryoVals(Kryo kryo, Serializer<?> ser, byte[] buff) {
+			super();
+			this.kryo = kryo;
+			this.ser = ser;
+			this.buff = buff;
+		}
+	}
+
+	static {
+		BUFF_CACHE = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.SECONDS).build();
+	}
 
 	protected StreamCalcKryo() {
 		super();
-		kryo = new Kryo();
-		kryo.setInstantiatorStrategy(new SerializingInstantiatorStrategy());
-		// Since StreamCalc extends Map, explicitly set a FieldSerializer
-		ser = kryo.register(StreamCalc.class, new FieldSerializer<>(kryo, StreamCalc.class), 16).getSerializer();
 	}
 
 	public StreamCalc read(byte[] inBuff) {
-		return kryo.readObject(new Input(inBuff), StreamCalc.class, ser);
+		KryoVals vals = getKryoVals();
+		return vals.kryo.readObject(new Input(inBuff), StreamCalc.class, vals.ser);
 	}
 
 	public byte[] write(StreamCalc obj) {
-		Output out = new Output(buff);
-		kryo.writeObject(out, obj, ser);
-		return ArrayUtils.subarray(buff, 0, out.position());
+		KryoVals vals = getKryoVals();
+		Output out = new Output(vals.buff);
+		vals.kryo.writeObject(out, obj, vals.ser);
+		return ArrayUtils.subarray(vals.buff, 0, out.position());
+	}
+
+	KryoVals getKryoVals() {
+		try {
+			return BUFF_CACHE.get(Thread.currentThread(), new Callable<KryoVals>() {
+				@Override
+				public KryoVals call() throws Exception {
+					Kryo kryo = new Kryo();
+					kryo.setInstantiatorStrategy(new SerializingInstantiatorStrategy());
+					return new KryoVals(kryo,
+							kryo.register(StreamCalc.class, new FieldSerializer<>(kryo, StreamCalc.class), 16)
+									.getSerializer(),
+							new byte[1024 * 1024 * 128]);
+				}
+			});
+		} catch (ExecutionException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 }

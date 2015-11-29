@@ -14,6 +14,10 @@ import co.cask.common.http.HttpResponse;
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import cern.jet.random.Normal;
+import cern.jet.random.engine.MersenneTwister;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,22 +42,20 @@ public class StreamStatAppTest extends TestBase {
 
 		try {
 			StreamManager streamManager = getStreamManager(StreamStatApp.STREAM_NAME);
-			streamManager.send("key1\t100");
-			streamManager.send("key1\t999");
-			streamManager.send("key1\t1000");
-			streamManager.send("key1\t1001");
-			streamManager.send("key1\t5000");
-			streamManager.send("key1\t10000");
-			streamManager.send("key2\t100");
-			streamManager.send("key2\t1000");
-			streamManager.send("key2\t5000");
-			streamManager.send("key2\t10000");
+
+			Normal norm = new Normal(10000, 100, new MersenneTwister());
+			long start = System.currentTimeMillis();
+			int n = 1000;
+			for (int x = 0; x < n; x++) {
+				streamManager.send(String.format("key%s\t%s", x % 4, norm.nextDouble()));
+			}
 
 			RuntimeMetrics countMetrics = flowManager.getFlowletMetrics(StreamStatParseFlowlet.NAME);
-			countMetrics.waitForProcessed(10, 3, TimeUnit.SECONDS);
+			countMetrics.waitForProcessed(n, 100, TimeUnit.SECONDS);
 			countMetrics = flowManager.getFlowletMetrics(StreamStatCalcFlowlet.NAME);
-			countMetrics.waitForProcessed(5, 3, TimeUnit.SECONDS);
-
+			countMetrics.waitForProcessed(n, 100, TimeUnit.SECONDS);
+			System.out.println("Throughput: " + n / (System.currentTimeMillis() - start / 1000D));
+			
 			// Start service and verify
 			ServiceManager serviceManager = appManager.getServiceManager(StreamStatHttpHandler.NAME);
 			serviceManager.start();
@@ -68,7 +70,7 @@ public class StreamStatAppTest extends TestBase {
 				Map<String, Map<String, Object>> stats = GSON.fromJson(response.getResponseBodyAsString(Charsets.UTF_8),
 						new TypeToken<Map<String, Map<String, Object>>>() {
 						}.getType());
-				Assert.assertEquals(2, stats.size());
+				Assert.assertEquals(4, stats.size());
 				Assert.assertTrue(stats.containsKey("key1"));
 			} finally {
 				serviceManager.stop();

@@ -36,7 +36,7 @@ public class StreamStatCalcFlowlet extends AbstractFlowlet {
 	}
 
 	@ProcessInput
-	@Batch(1024 * 16)
+	@Batch(4096)
 	@HashPartition("streamStatID")
 	public void process(Iterator<String[]> tuples) {
 		PatriciaTrie<List<String>> keys = new PatriciaTrie<>();
@@ -57,10 +57,11 @@ public class StreamStatCalcFlowlet extends AbstractFlowlet {
 				streamCalc = ser.read(statKryo);
 			} else {
 				// TODO: make settings configurable
-				streamCalc = new StreamCalc(10, 1024 * 10);
+				streamCalc = new StreamCalc(10, 4096);
 			}
 			List<String> values = entry.getValue();
 			streamCalc.add(values.toArray());
+			streamCalc.microBatch();
 			streamStat.write(keyBytes, ser.write(streamCalc));
 		}
 	}
