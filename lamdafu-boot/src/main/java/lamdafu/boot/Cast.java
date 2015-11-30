@@ -26,7 +26,7 @@ public class Cast {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public static <T> T getAs(Map<? extends String, ? extends Object> map, Object key, Class<T> returnType) {
+	public static <T> T getAs(Map<? extends Object, ? extends Object> map, Object key, Class<T> returnType) {
 		if (map == null || key == null || returnType == null) {
 			return null;
 		}
@@ -50,7 +50,7 @@ public class Cast {
 	 * @throws ClassCastException
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public static <T> T getAs(Map<? extends String, ? extends Object> map, String key)
+	public static <T> T getAs(Map<? extends Object, ? extends Object> map, String key)
 			throws NullPointerException, ClassCastException {
 		return (T) map.get(key);
 	}
