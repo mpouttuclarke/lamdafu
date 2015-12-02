@@ -1,4 +1,4 @@
-package lamdafu.cdap.streamstat;
+package lamdafu.codec;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -43,7 +43,7 @@ public class StreamCalcKryo {
 		BUFF_CACHE = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.SECONDS).build();
 	}
 
-	protected StreamCalcKryo() {
+	public StreamCalcKryo() {
 		super();
 	}
 

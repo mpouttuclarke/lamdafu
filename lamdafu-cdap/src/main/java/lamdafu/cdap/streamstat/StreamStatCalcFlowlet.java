@@ -15,6 +15,7 @@ import co.cask.cdap.api.annotation.UseDataSet;
 import co.cask.cdap.api.dataset.lib.KeyValueTable;
 import co.cask.cdap.api.flow.flowlet.AbstractFlowlet;
 import co.cask.cdap.api.flow.flowlet.FlowletContext;
+import lamdafu.codec.StreamCalcKryo;
 import lamdafu.primitives.StreamCalc;
 
 /**

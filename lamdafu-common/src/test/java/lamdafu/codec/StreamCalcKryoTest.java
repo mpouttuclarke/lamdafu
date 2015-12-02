@@ -1,4 +1,4 @@
-package lamdafu.cdap.streamstat;
+package lamdafu.codec;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import lamdafu.boot.Cast;
+import lamdafu.codec.StreamCalcKryo;
 import lamdafu.primitives.StreamCalc;
 
 public class StreamCalcKryoTest {

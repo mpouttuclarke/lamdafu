@@ -15,6 +15,7 @@ import co.cask.cdap.api.service.http.AbstractHttpServiceHandler;
 import co.cask.cdap.api.service.http.HttpServiceContext;
 import co.cask.cdap.api.service.http.HttpServiceRequest;
 import co.cask.cdap.api.service.http.HttpServiceResponder;
+import lamdafu.codec.StreamCalcKryo;
 
 public class StreamStatHttpHandler extends AbstractHttpServiceHandler {
 	static final String NAME = "StreamStatService";
