@@ -21,6 +21,8 @@ import static lamdafu.primitives.Primitives.VARIANCE;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -32,6 +34,7 @@ import cern.colt.list.DoubleArrayList;
 import cern.jet.random.engine.MersenneTwister;
 import hep.aida.bin.QuantileBin1D;
 import lamdafu.base.LamdaMap;
+import lamdafu.boot.Cast;
 import lamdafu.codec.Unibit;
 
 public class StreamCalc extends LamdaMap {
@@ -135,6 +138,18 @@ public class StreamCalc extends LamdaMap {
 		DoubleArrayList vals = qb.quantiles(phis);
 		for (int x = 0; x < vals.size(); x++) {
 			p.put(String.format(qFormat, QUANTILE.alias, x), Unibit.decode(vals.get(x)));
+		}
+		// TODO: make NaN, Infinity, -Infinity configurable
+		for (Map.Entry<String, Object> entry : p.entrySet()) {
+			Object value = entry.getValue();
+			if (value instanceof Double) {
+				Double asDouble = Cast.as(value);
+				if (asDouble == null || !Double.isFinite(asDouble)) {
+					entry.setValue(String.valueOf(asDouble));
+				}
+			} else if (!(value instanceof Number)) {
+				entry.setValue(String.valueOf(value));
+			}
 		}
 		return Collections.unmodifiableSortedMap(new PatriciaTrie<>(p));
 	}

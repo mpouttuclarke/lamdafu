@@ -40,22 +40,24 @@ public class StreamStatAppTest extends TestBase {
 		FlowManager flowManager = appManager.getFlowManager(StreamStatFlow.NAME);
 		flowManager.start();
 
+		int n = 256;
+		long start = 0L;
+		double secs = 0D;
 		try {
 			StreamManager streamManager = getStreamManager(StreamStatApp.STREAM_NAME);
 
-			Normal norm = new Normal(10000, 100, new MersenneTwister());
-			long start = System.currentTimeMillis();
-			int n = 1000;
+			Normal norm = new Normal(10000, 50, new MersenneTwister());
+			start = System.currentTimeMillis();
 			for (int x = 0; x < n; x++) {
-				streamManager.send(String.format("key%s\t%s", x % 4, norm.nextDouble()));
+				streamManager.send(String.format("key%s,%s", x % 4, norm.nextInt()));
 			}
 
 			RuntimeMetrics countMetrics = flowManager.getFlowletMetrics(StreamStatParseFlowlet.NAME);
 			countMetrics.waitForProcessed(n, 100, TimeUnit.SECONDS);
 			countMetrics = flowManager.getFlowletMetrics(StreamStatCalcFlowlet.NAME);
 			countMetrics.waitForProcessed(n, 100, TimeUnit.SECONDS);
-			System.out.println("Throughput: " + n / (System.currentTimeMillis() - start / 1000D));
-			
+			secs = (System.currentTimeMillis() - start) / 1000D;
+						
 			// Start service and verify
 			ServiceManager serviceManager = appManager.getServiceManager(StreamStatHttpHandler.NAME);
 			serviceManager.start();
@@ -79,5 +81,6 @@ public class StreamStatAppTest extends TestBase {
 		} finally {
 			flowManager.stop();
 		}
+		System.out.println(String.format("\n\n\n%s count, %.3f secs, %.3f count/sec", n, secs, n / secs));
 	}
 }

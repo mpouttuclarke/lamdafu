@@ -38,6 +38,7 @@ Mary didn't have a little Lamb ... da!  We prefer the Unicode (and Greek) spelli
 						<target>1.7</target>
 					</configuration>
 				</plugin>
+				
 			</plugins>
 		</pluginManagement>
 	</build>
