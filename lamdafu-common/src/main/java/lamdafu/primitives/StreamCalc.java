@@ -22,7 +22,6 @@ import static lamdafu.primitives.Primitives.VARIANCE;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -122,6 +121,7 @@ public class StreamCalc extends LamdaMap {
 		p.put(COUNT_NULL.alias, countNull);
 		p.put(COUNT_NaN.alias, countNaN);
 		p.put(COUNT_USABLE.alias, countUsable);
+		// TODO: add distinct calc
 		p.put(COUNT_DISTINCT.alias, countDistinct);
 		p.put(MIN.alias, Unibit.decode(qb.min()));
 		p.put(MAX.alias, Unibit.decode(qb.max()));
