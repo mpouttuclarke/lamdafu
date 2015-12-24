@@ -1,4 +1,4 @@
-# &#955;&#31119; - LamdaFu
+# λ夫 - LamdaFu
 
 Please see the [LamdaFu Wiki](../../wiki) for more information.
 
